@@ -83,7 +83,7 @@ $ cf push
 You can now create and drop collections by POSTing and DELETEing to `myCollection`.
 
 ```
-$ export APP=mongodb-example-app.example.com
+$ export APP=http://mongodb-example-app.example.com
 $ curl -X POST $APP/myCollection
 $ curl -X DELETE $APP/myCollection
 bar
