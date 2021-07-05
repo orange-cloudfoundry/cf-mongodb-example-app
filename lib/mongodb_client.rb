@@ -15,7 +15,7 @@ class MongodbClient < SimpleDelegator
 
   def create_collection(collection_name, require_collection = true)
     begin
-      client = Mongo::Client.new(uri)
+      client = Mongo::Client.new(uri, :direct_connection)
       client[collection_name].create
     rescue Mongo::ConnectionFailure
       app.bind_mongodb_service_to_app_instructions
@@ -26,7 +26,7 @@ class MongodbClient < SimpleDelegator
 
   def drop_collection(collection_name, require_collection = true)
     begin
-      client = Mongo::Client.new(uri)
+      client = Mongo::Client.new(uri, :direct_connection)
       client[collection_name].drop
     rescue Mongo::ConnectionFailure
       app.bind_mongodb_service_to_app_instructions
