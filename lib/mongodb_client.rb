@@ -15,7 +15,7 @@ class MongodbClient < SimpleDelegator
 
   def create_collection(collection_name, require_collection = true)
     begin
-      client = Mongo::Client.new(uri, :direct_connection)
+      client = Mongo::Client.new(uri)
       #client = Mongo::Client.new("mongodb://<login>:<password>@<ip>/admin", direct_connection: true)
       #client = Mongo::Client.new("mongodb://<login>:<password>@<ip>/admin?directConnection=true")
       client[collection_name].create
@@ -28,7 +28,7 @@ class MongodbClient < SimpleDelegator
 
   def drop_collection(collection_name, require_collection = true)
     begin
-      client = Mongo::Client.new(uri, :direct_connection)
+      client = Mongo::Client.new(uri)
       #client = Mongo::Client.new("mongodb://<login>:<password>@<ip>/admin", direct_connection: true)
       #client = Mongo::Client.new("mongodb://<login>:<password>@<ip>/admin?directConnection=true")
       client[collection_name].drop
