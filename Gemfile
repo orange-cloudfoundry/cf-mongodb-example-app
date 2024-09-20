@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+ruby '> 3.0.0'
 
 gem 'cf-app-utils', git: 'https://github.com/cloudfoundry/cf-app-utils-ruby.git'
 
