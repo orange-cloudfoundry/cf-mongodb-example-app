@@ -90,3 +90,19 @@ bar
 ```
 
 Of course, be sure to replace `example.com` with the actual domain of your Cloud Foundry installation.
+
+
+## Cloud native buildpack
+
+To run using docker: `docker run -e PORT=8081 -p 8080:8081 mongodb-cnb-app`
+
+> [!WARNING]
+> No VCAP_SERVICES as environment variable is provided in built image, you need to add one to run this sample app properly
+
+```
+$ export APP=http://localhost:8080
+$ curl -X POST $APP/myCollection
+$ curl -X DELETE $APP/myCollection
+bar # or <h1>Internal Server Error</h1> when no service is provided
+```
+
