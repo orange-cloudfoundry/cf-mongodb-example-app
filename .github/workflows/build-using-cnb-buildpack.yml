@@ -9,6 +9,8 @@ on:
       - "v?[0-9]+.[0-9]+.[0-9]+*"
 env:
   CNB_IMAGE_NAME: cnb-app
+  mongodb-version: '6.0'
+  mongodb-port: 27017 # Default value: 27017
 jobs:
   package-app:
     name: "Package ${{ github.repository }} as CNB app"
@@ -35,6 +37,17 @@ jobs:
         name: Setup pack for ${{ github.repository }}
         uses: buildpacks/github-actions/setup-pack@v5.0.0
       -
+        name: Start MongoDB testing server
+        uses: supercharge/mongodb-github-action@1.11.0
+        with:
+          mongodb-version: ${{ env.mongodb-version }}
+          mongodb-container-name: mongodb-${{ env.mongodb-version }}
+          mongodb-port: ${{env.mongodb-port}}
+#          mongodb-username: supercharge
+#          mongodb-password: secret
+#          mongodb-db: supercharge
+
+      -
         name: Packaging app from ${{ github.repository }} pushed by ${{ github.actor }}
         shell: bash
         run: |
@@ -42,6 +55,16 @@ jobs:
           pack build ${{env.CNB_IMAGE_NAME}} --builder heroku/builder:24
           echo "Pack Inspect ${{env.CNB_IMAGE_NAME}} (${{github.repository}})"
           pack inspect ${{env.CNB_IMAGE_NAME}}
+      -
+        name: Testing app
+        shell: bash
+        run: |
+          echo
+          docker run -d --rm -e PORT=80 --env-file vcap-service.sh -p 8080:80 --name "cnb-app" ${{env.CNB_IMAGE_NAME}}
+          docker ps -a
+          export APP=http://localhost:8080
+          curl -X POST $APP/myCollection
+          curl -X DELETE $APP/myCollection
       -
         name: Tag version ${{github.ref_name}}
         if: github.ref_type == 'tag'
