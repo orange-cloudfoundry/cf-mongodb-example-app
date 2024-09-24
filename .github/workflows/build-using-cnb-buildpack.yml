@@ -9,8 +9,12 @@ on:
       - "v?[0-9]+.[0-9]+.[0-9]+*"
 env:
   CNB_IMAGE_NAME: cnb-app
-  mongodb-version: '6.0'
-  mongodb-port: 27017 # Default value: 27017
+  SERVICE_VERSION: '6.0'
+  SERVICE_PORT: 27017 # Default value: 27017
+  SERVICE_USERNAME: '22032e25-4aba-417f-a394-8bbd78d920cd'
+  SERVICE_PASSWORD: 'StbQ4EovUpwQjD0cT1Hr7PKBG'
+  DATABASE_NAME: my-mongo-db
+
 jobs:
   package-app:
     name: "Package ${{ github.repository }} as CNB app"
@@ -40,12 +44,12 @@ jobs:
         name: Start MongoDB testing server
         uses: supercharge/mongodb-github-action@1.11.0
         with:
-          mongodb-version: ${{ env.mongodb-version }}
-          mongodb-container-name: mongodb-${{ env.mongodb-version }}
-          mongodb-port: ${{env.mongodb-port}}
-#          mongodb-username: supercharge
-#          mongodb-password: secret
-#          mongodb-db: supercharge
+          mongodb-version: ${{ env.SERVICE_VERSION }}
+          mongodb-port: ${{env.SERVICE_PORT}}
+          mongodb-username: ${{env.SERVICE_USERNAME}}
+          mongodb-password: ${{env.SERVICE_PASSWORD}}
+          mongodb-db: ${{env.DATABASE_NAME}}
+#          mongodb-container-name: mongodb-${{ env.SERVICE_VERSION }}
 
       -
         name: Packaging app from ${{ github.repository }} pushed by ${{ github.actor }}
@@ -59,12 +63,42 @@ jobs:
         name: Testing app
         shell: bash
         run: |
-          echo
-          docker run -d --rm -e PORT=80 --env-file vcap-service.sh -p 8080:80 --name "cnb-app" ${{env.CNB_IMAGE_NAME}}
+          cat vcap-services-template.sh|envsubst >vcap-service.env
+          cat vcap-service.env
+          echo "Starting sample app"
+          container_id=$(docker run -d -e PORT=80 --env-file vcap-service.env -p 8080:80 --name "cnb-app-container" ${{env.CNB_IMAGE_NAME}})
+          echo "Cnb app started (id: $container_id)"
+          docker inspect -f '{{.HostConfig.LogConfig.Type}}' $container_id 
+          # docker run   -e PORT=80 --env-file vcap-service.env -p 8080:80 --name "cnb-app-container" ${{env.CNB_IMAGE_NAME}}
+          docker logs -f cnb-app-container &> cnb-app-container.log &
+          docker logs mongodb
+          cat /etc/hosts
           docker ps -a
-          export APP=http://localhost:8080
-          curl -X POST $APP/myCollection
-          curl -X DELETE $APP/myCollection
+          env|sort
+          export APP="http://127.0.0.1:8080"
+          exit_status=0
+          if nc -vz 127.0.0.1 8080;then echo "port 8080 available";else echo "port 8080 UNAVAILABLE";exit_status=1;fi                    
+          if nc -vz 127.0.0.1 ${SERVICE_PORT};then echo "port ${SERVICE_PORT} available";else echo "port ${SERVICE_PORT} UNAVAILABLE";exit_status=1;fi                    
+          if mongosh --version;then echo "mongosh available";else echo "mongosh UNAVAILABLE";fi
+          echo "Create using 'curl -X POST $APP/myCollection'"
+          if ! curl -vvv -X POST $APP/myCollection -H 'Content-Length: 0';then
+            echo "Create failed"
+            exit_status=1
+          else
+            echo "Create successful"
+          fi
+          echo "Delete using 'curl -X DELETE $APP/myCollection'"
+          if ! curl -vvv -X DELETE $APP/myCollection;then
+            echo "Delete failed"
+            exit_status=1
+          else
+            echo "Delete successful"
+          fi
+          cat cnb-app-container.log
+          echo "Dumping logs using docker logs cnb-app-container"
+          docker logs cnb-app-container
+          ls -lrt
+          exit $exit_status
       -
         name: Tag version ${{github.ref_name}}
         if: github.ref_type == 'tag'

@@ -1,0 +1,29 @@
+VCAP_SERVICES='
+{
+  "mongodb-dedicated":[
+    {
+      "binding_guid":"${SERVICE_USERNAME}",
+      "binding_name":null,
+      "credentials":{
+        "database":"${DATABASE_NAME}",
+        "hostname":"localhost:${SERVICE_PORT}",
+        "password":"${SERVICE_PASSWORD}",
+        "uri":"mongodb://${SERVICE_USERNAME}:${SERVICE_PASSWORD}@localhost:${SERVICE_PORT}/${DATABASE_NAME}?replicaSet=rs0",
+        "username":"${SERVICE_USERNAME}"
+      },
+      "instance_guid":"cc252ef5-2541-49fd-8a57-fe73957905a5",
+      "instance_name":"mongodb-github-test",
+      "label":"mongodb-dedicated",
+      "name":"mongodb-github-test",
+      "plan":"small",
+      "provider":null,
+      "syslog_drain_url":null,
+      "tags":[
+        "mongodb",
+        "document"
+      ],
+      "volume_mounts":[]
+    }
+  ]
+}
+'
