@@ -1,23 +1,65 @@
 name: "Build using cnb buildpack"
+permissions:
+  packages: write
 on:
   push:
     branches:
       - '*'
+    tags:
+      - "v?[0-9]+.[0-9]+.[0-9]+*"
+env:
+  CNB_IMAGE_NAME: cnb-app
 jobs:
-  merge:
+  package-app:
+    name: "Package ${{ github.repository }} as CNB app"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      -
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
         with:
           # Number of commits to fetch. 0 indicates all history for all branches and tags.
           # Default: 1
           fetch-depth: 1
       -
-        name: Setup pack for ${{ github.ref_name }}
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Setup pack for ${{ github.repository }}
         uses: buildpacks/github-actions/setup-pack@v5.0.0
-
-      - name: Packaging app from ${{ github.ref_name }} pushed by ${{ github.actor }}
+      -
+        name: Packaging app from ${{ github.repository }} pushed by ${{ github.actor }}
         shell: bash
         run: |
-          pack build mongodb-cnb-app --builder heroku/builder:24
+          echo "Pack Build ${{env.CNB_IMAGE_NAME}} (${{github.repository}})"
+          pack build ${{env.CNB_IMAGE_NAME}} --builder heroku/builder:24
+          echo "Pack Inspect ${{env.CNB_IMAGE_NAME}} (${{github.repository}})"
+          pack inspect ${{env.CNB_IMAGE_NAME}}
+      -
+        name: Tag version ${{github.ref_name}}
+        if: github.ref_type == 'tag'
+        run: |
+          docker tag ${{env.CNB_IMAGE_NAME}}:latest ghcr.io/${{ github.repository }}:${{github.ref_name}}
+      -
+        name: Tag with common data
+        run: |
+          docker tag ${{env.CNB_IMAGE_NAME}}:latest ghcr.io/${{ github.repository }}:latest
+          docker tag ${{env.CNB_IMAGE_NAME}}:latest ghcr.io/${{ github.repository }}:${{github.sha}}
+          echo "cleanup built image"
+          docker image rm ${{env.CNB_IMAGE_NAME}}:latest
+          echo "dump existing images"
+          docker images
+      -
+        name: Publish ghcr.io/${{ github.repository }}
+        run: |
+          echo "publish all tags"
+          docker push --all-tags ghcr.io/${{ github.repository }}
+          
+          
