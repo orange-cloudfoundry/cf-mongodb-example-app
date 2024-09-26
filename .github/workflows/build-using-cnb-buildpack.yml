@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           echo "Pack Build ${{env.CNB_IMAGE_NAME}} (${{github.repository}})"
-          pack build ${{env.CNB_IMAGE_NAME}} --builder heroku/builder:24
+          pack build ${{env.CNB_IMAGE_NAME}} --builder paketobuildpacks/builder-jammy-base
           echo "Pack Inspect ${{env.CNB_IMAGE_NAME}} (${{github.repository}})"
           pack inspect ${{env.CNB_IMAGE_NAME}}
       -
