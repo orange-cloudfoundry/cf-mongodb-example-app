@@ -1,4 +1,3 @@
-VCAP_SERVICES='
 {
   "mongodb-dedicated":[
     {
@@ -6,9 +5,9 @@ VCAP_SERVICES='
       "binding_name":null,
       "credentials":{
         "database":"${DATABASE_NAME}",
-        "hostname":"localhost:${SERVICE_PORT}",
+        "hostname":"${SERVICE_HOST}:${SERVICE_PORT}",
         "password":"${SERVICE_PASSWORD}",
-        "uri":"mongodb://${SERVICE_USERNAME}:${SERVICE_PASSWORD}@localhost:${SERVICE_PORT}/${DATABASE_NAME}?replicaSet=rs0",
+        "uri":"mongodb://${SERVICE_USERNAME}:${SERVICE_PASSWORD}@${SERVICE_HOST}:${SERVICE_PORT}/${DATABASE_NAME}",
         "username":"${SERVICE_USERNAME}"
       },
       "instance_guid":"cc252ef5-2541-49fd-8a57-fe73957905a5",
@@ -22,8 +21,7 @@ VCAP_SERVICES='
         "mongodb",
         "document"
       ],
-      "volume_mounts":[]
+      "volume_mounts": [ ]
     }
   ]
 }
-'

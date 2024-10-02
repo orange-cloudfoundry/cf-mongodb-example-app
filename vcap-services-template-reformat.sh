@@ -1,0 +1,1 @@
+echo VCAP_SERVICES="$(cat vcap-services-template.json|jq -c '.'|envsubst)" > vcap-service.env

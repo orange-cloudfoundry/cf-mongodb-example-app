@@ -1,3 +1,6 @@
 /vendor
 /tmp
 .idea/
+*.log
+*.iml
+/vcap-service.env

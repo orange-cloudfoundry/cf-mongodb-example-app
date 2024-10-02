@@ -48,6 +48,7 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     openssl (3.0.2)
+    ostruct (0.6.0)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -100,6 +101,7 @@ DEPENDENCIES
   guard
   guard-rspec
   mongo
+  ostruct (~> 0.6.0)
   rack-test
   rspec
   sinatra
