@@ -17,8 +17,8 @@ class MongodbClient < SimpleDelegator
     begin
       client = Mongo::Client.new(uri)
       client[collection_name].create
-    # rescue Mongo::ConnectionFailure
-    #   app.bind_mongodb_service_to_app_instructions
+    rescue Mongo::Error::OperationFailure
+      app.bind_mongodb_service_to_app_instructions
     ensure
       client.close if client
     end
@@ -28,8 +28,8 @@ class MongodbClient < SimpleDelegator
     begin
       client = Mongo::Client.new(uri)
       client[collection_name].drop
-    # rescue Mongo::ConnectionFailure
-    #   app.bind_mongodb_service_to_app_instructions
+    rescue Mongo::Error::OperationFailure
+      app.bind_mongodb_service_to_app_instructions
     ensure
       client.close if client
     end
