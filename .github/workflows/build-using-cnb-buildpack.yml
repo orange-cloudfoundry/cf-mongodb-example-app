@@ -12,11 +12,12 @@ env:
   SERVICE_NAME: 'mongodb'
   SERVICE_VERSION: '6.0'
   SERVICE_IMAGE: "mongo:7.0.14"
+  SERVICE_HEALTH_CMD: "mongo"
   SERVICE_PORT: 27017 # Default value: 27017
   SERVICE_USERNAME: '22032e25-4aba-417f-a394-8bbd78d920cd'
   SERVICE_PASSWORD: 'StbQ4EovUpwQjD0cT1Hr7PKBG'
   DATABASE_NAME: my-sample-mongo-db
-  DEBUG: 1
+  DEBUG: 0
 
 jobs:
   package-app:
@@ -66,7 +67,7 @@ jobs:
         name: Testing app
         shell: bash
         run: |
-          ./setup-prerequisite.sh
+          source ./setup-prerequisite.sh
           ./run-tests.sh
       -
         name: Tag version ${{github.ref_name}}
