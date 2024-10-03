@@ -14,7 +14,6 @@ while [ "$( docker container inspect -f '{{.State.Status}}' $container_name )" !
   sleep 1
 done
 sleep 3 # to ensure app is up and running
-#docker inspect -f '{{.HostConfig.LogConfig.Type}}' $container_id
 service_container_name="$(docker ps -f "ancestor=$SERVICE_IMAGE" --format "{{.Names}}")"
 CONTAINER_APP_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $container_name)
 echo "CONTAINER_APP_IP: $CONTAINER_APP_IP"
@@ -33,10 +32,6 @@ docker ps -a
 echo "=== Check connectivity ==="
 if nc -vz 127.0.0.1 8080;then echo "port 8080 available";else echo "port 8080 UNAVAILABLE";exit_status=1;fi
 if nc -vz 127.0.0.1 "${SERVICE_PORT}";then echo "port ${SERVICE_PORT} available";else echo "port ${SERVICE_PORT} UNAVAILABLE";exit_status=1;fi
-#echo "Checking redis server 127.0.0.1 : PING ==> $(redis-cli -a ${SERVICE_PASSWORD} -h 127.0.0.1 -p ${SERVICE_PORT} --no-auth-warning ping)"
-#echo "Checking redis server $SERVICE_HOST : PING ==> $(redis-cli -a ${SERVICE_PASSWORD} -h ${SERVICE_HOST} -p ${SERVICE_PORT} --no-auth-warning ping)"
-
-echo mongosh \'mongodb://$SERVICE_USERNAME:$SERVICE_PASSWORD@$SERVICE_HOST:$SERVICE_PORT/$DATABASE_NAME\' --apiVersion 1
 
 
 function check_service() {
@@ -69,7 +64,7 @@ create_service=$?
 #get_service_output="$(check_service "Get" "curl -sSLf -X GET $APP/foo" )"
 #get_service=$?
 
-delete_service_output="$(check_service "Delete" "curl -sSLf DELETE $APP/myCollection -d ''")"
+delete_service_output="$(check_service "Delete" "curl -sSLf -X DELETE $APP/myCollection -d ''")"
 delete_service=$?
 set -e
 
