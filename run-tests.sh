@@ -78,6 +78,11 @@ ls -lrt *.log
 if [ $exit_status -ne 0 ];then
   echo "-------------------------------------------------------------------------------------------------"
   echo "Dumping service logs"
-  docker logs $SERVICE_NAME-service -n 30 2>&1
+  if [ "$DEBUG" = 0 ];then
+    docker logs $SERVICE_NAME-service -n 30 2>&1
+  else
+    docker logs $SERVICE_NAME-service 2>&1
+  fi
+
 fi
 exit $exit_status
