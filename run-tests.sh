@@ -33,6 +33,8 @@ echo "=== Check connectivity ==="
 if nc -vz 127.0.0.1 8080;then echo "port 8080 available";else echo "port 8080 UNAVAILABLE";exit_status=1;fi
 if nc -vz 127.0.0.1 "${SERVICE_PORT}";then echo "port ${SERVICE_PORT} available";else echo "port ${SERVICE_PORT} UNAVAILABLE";exit_status=1;fi
 
+echo "=== Check access as $SERVICE_USERNAME === "
+docker exec -i $service_container_name bash -c "mongosh \"mongodb://$SERVICE_USERNAME:$SERVICE_PASSWORD@localhost:$SERVICE_PORT/$DATABASE_NAME\" -eval \"db = db.getSiblingDB('my-sample-mongo-db');  if (!db.runCommand({ping: 1 }).ok) { print('Database not found'); exit(1); }\""
 
 function check_service() {
   type="$1"
@@ -56,6 +58,8 @@ function check_service() {
   return $status
 }
 export APP="http://127.0.0.1:8080"
+
+echo "=== Test App ==="
 set +e
 exit_status=0
 create_service_output="$(check_service "Create" "curl -sSLf -X POST $APP/myCollection -d ''")"

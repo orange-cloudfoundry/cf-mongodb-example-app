@@ -23,12 +23,18 @@ SERVICE_CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.
 echo "$SERVICE_CONTAINER_IP: $SERVICE_CONTAINER_IP"
 export SERVICE_HOST=$SERVICE_CONTAINER_IP
 echo "$SERVICE_NAME - Mongosh version: $(docker exec -i $service_container_name mongosh --version)"
-echo "$SERVICE_NAME - Cmd to create user: mongosh --username '$SERVICE_ADMIN_USERNAME' -p '$SERVICE_PASSWORD' --authenticationDatabase admin --eval \"use $DATABASE_NAME; db.createUser({ user: '$SERVICE_USERNAME', pwd: '$SERVICE_PASSWORD', roles: [{ role: 'readWrite', db: '$DATABASE_NAME' }] })\""
+echo "$SERVICE_NAME - Cmd to create user: mongosh --username '$SERVICE_ADMIN_USERNAME' -p '$SERVICE_PASSWORD' --authenticationDatabase admin --eval \"use $DATABASE_NAME; db.createUser({ user: '$SERVICE_USERNAME', pwd: '$SERVICE_PASSWORD', roles: [{ role: 'readWrite,userAdmin', db: '$DATABASE_NAME' }] })\""
 docker exec -i $service_container_name bash -c "mongosh \"mongodb://$SERVICE_ADMIN_USERNAME:$SERVICE_PASSWORD@localhost:$SERVICE_PORT/$DATABASE_NAME\" --authenticationDatabase admin <<EOF
- db.createUser({ user: '$SERVICE_USERNAME', pwd: '$SERVICE_PASSWORD', roles: [{ role: 'readWrite', db: '$DATABASE_NAME' }] })
+ db.createUser({ user: '$SERVICE_USERNAME', pwd: '$SERVICE_PASSWORD',
+  roles: [
+  { role: 'readWrite', db: '$DATABASE_NAME' }
+  //, { role: 'userAdmin', db: '$DATABASE_NAME' }
+  ] })
  show users
+EOF
 "
-#EOF is implicit, so useless
+# EOF is implicit on github-action, but required locally,
+
 echo ""
 
 echo "To ease connection to mongo server, execute the command below: "
