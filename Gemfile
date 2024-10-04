@@ -9,6 +9,7 @@ gem 'bson_ext'
 gem 'tttls1.3', '>=0.2.15'
 gem 'webrick', '~> 1.8'
 gem 'bigdecimal'
+gem 'ostruct', '~> 0.6.0'
 
 group :test do
   gem 'rspec'
