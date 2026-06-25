@@ -43,7 +43,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       -
         name: Setup pack for ${{ github.repository }}
-        uses: buildpacks/github-actions/setup-pack@v5.0.0
+        uses: buildpacks/github-actions/setup-pack@v5.12.5
 #      -
 #        name: Start MongoDB testing server
 #        uses: supercharge/mongodb-github-action@1.11.0
